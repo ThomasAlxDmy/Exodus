@@ -45,7 +45,7 @@ module Exodus
 	  def run_one_migration(migration_class, direction, args)
 	  	# Going throught MRD because MM request returns nil for some reason
 	  	current_migration = migration_class.load(migration_class.collection.find('status.arguments' => args).first)
-	  	current_migration ||= migration_class.new(status: {arguments: args})
+	  	current_migration ||= migration_class.new(:status => {:arguments => args})
 
 	  	if current_migration.is_runnable?(direction)
 	  		# Make sure we save all info in case of a failure 
