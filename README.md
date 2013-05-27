@@ -3,15 +3,15 @@ Exodus - a migration framework for MongoDb
 
 # Intro 
 
-## A migration Framework for a schemaless database ???
+## A migration Framework for a schemaless database ??
 
-  After working with Mongo for long time now I can tell you it doesn't mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency in your collections; Especially when your code is live in production and used by millions of users. 
+  After working with Mongo for long time now I can tell you working with a schemaless database does not mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency; Especially when your code is live in production and used by millions of users. 
 
   There is a plenty of way to modify documents data structure and after a deep reflexion I realized it makes more sens to use migration framework. A migration framework provides a lot of advantages, such as: 
 
   * It allows you to know at any time which migration has been ran on any given system  
   * It's Auto runnable on deploy
-	* When switching enviromment (dev, pre-prod, prod) you don't need to worry if the script has been ran or not. The framework takes care of it for you
+  * When switching enviromment (dev, pre-prod, prod) you don't need to worry if the script has been ran or not. The framework takes care of it for you
 
 
 # Installation
