@@ -108,7 +108,7 @@ module Exodus
     end
 
     def failure=(exception)
-      self.status.error = MigrationError.new(error_message: exception.message, error_class: exception.class, error_backtrace: exception.backtrace)
+      self.status.error = MigrationError.new(:error_message => exception.message, :error_class => exception.class, :error_backtrace => exception.backtrace)
     end
 
     def time_it
