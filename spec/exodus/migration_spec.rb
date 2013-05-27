@@ -31,7 +31,7 @@ describe Exodus::Migration do
     describe "#load_all" do
       it "should override migrations" do
         first_migration = subject.class.load_all([]).first.first 
-        subject.class.load_all([[first_migration, {test_args: ['some', 'test', 'arguments']}]]).should include [first_migration, {test_args: ['some', 'test', 'arguments']}] 
+        subject.class.load_all([[first_migration, {:test_args => ['some', 'test', 'arguments']}]]).should include [first_migration, {:test_args => ['some', 'test', 'arguments']}] 
       end
 
       it "should add a new migrations if the migration is not present" do
@@ -48,7 +48,7 @@ describe Exodus::Migration do
     before do
       class Migration_test1 < Exodus::Migration
         def up 
-          step("Creating new APIUser entity", 1) {UserSupport.create(name:'testor')}
+          step("Creating new APIUser entity", 1) {UserSupport.create(:name =>'testor')}
         end
 
         def down 
@@ -111,7 +111,7 @@ describe Exodus::Migration do
         Migration_test1.collection.drop
         UserSupport.collection.drop
 
-        time = subject.time_it {UserSupport.create(name:'testor')}
+        time = subject.time_it {UserSupport.create(:name => 'testor')}
         subject.status.execution_time.should == time
       end
     end
