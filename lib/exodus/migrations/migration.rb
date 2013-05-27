@@ -90,7 +90,7 @@ module Exodus
 
       # reset the status if the job is rerunnable and has already be completed
       self.status = self.status.reset if self.rerunnable_safe && completed?(direction) 
-      time_it { self.public_send(direction) }
+      time_it { self.send(direction) }
       self.status.last_succesful_completion = Time.now
     end
 
