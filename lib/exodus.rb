@@ -1,5 +1,8 @@
 require 'mongo_mapper'
-Dir[File.dirname(__FILE__) + "/exodus/**/*.rb"].sort.each { |file| require file}
+require File.dirname(__FILE__) + '/exodus/config/migration_info'
+require File.dirname(__FILE__) + '/exodus/migrations/migration'
+require File.dirname(__FILE__) + '/exodus/migrations/migration_error'
+require File.dirname(__FILE__) + '/exodus/migrations/migration_status'
 
 module Exodus
 	class << self
@@ -70,6 +73,7 @@ module Exodus
 
 	  private
 
+	  # Prints tabulation before execting a given block
 	  def print_tabulation
 	  	puts "\n"
 		  yield if block_given?
