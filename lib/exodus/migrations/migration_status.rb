@@ -16,6 +16,10 @@ module Exodus
       self.direction == Migration::UP ? 1 : -1
     end
 
+    # Checks if a status has been processed
+    # a Status has been processed when:
+    # The current status is superior or equal to the given status and the migration direction is UP
+    # The current status is inferior or equal to the given status and the migration direction is DOWN
     def status_processed?(migration_direction, status_to_process)
     	(migration_direction == Migration::UP && current_status >= status_to_process) || (migration_direction == Migration::DOWN && current_status <= status_to_process)
     end
@@ -24,6 +28,7 @@ module Exodus
       "\t#{direction}\t\t #{arguments}\t\t #{current_status} \t\t #{last_succesful_completion} \t\t #{message}"
     end
 
+    # Resets a status
     def reset
       self.message = nil
       self.current_status = 0

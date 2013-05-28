@@ -4,7 +4,7 @@ require File.expand_path('../lib/exodus/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ['Thomas Dmytryk']
   gem.email         = ['thomas@fanhattan.com', 'thomas.dmytryk@supinfo.com']
-  gem.description   = %q{Exodus is a migration framework for Mongo}
+  gem.description   = %q{Exodus is a migration framework for MongoDb}
   gem.summary       = %q{Exodus uses mongomapper to provide a complete migration framework}
   gem.homepage      = ''
   gem.license       = 'MIT'

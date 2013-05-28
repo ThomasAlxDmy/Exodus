@@ -72,6 +72,7 @@ describe Exodus::Migration do
         subject.status.current_status.should == 1
         subject.status.direction.should == 'up'
         subject.status.execution_time.should > 0
+        subject.status.last_succesful_completion.should
         subject.status.message.should == 'Creating new APIUser entity'
       end
 
@@ -111,8 +112,9 @@ describe Exodus::Migration do
         Migration_test1.collection.drop
         UserSupport.collection.drop
 
-        time = subject.time_it {UserSupport.create(:name => 'testor')}
-        subject.status.execution_time.should == time
+        lambda do 
+          time = subject.send(:time_it) {UserSupport.create(:name => 'testor')}
+        end.should change { UserSupport.count }.by(1)
       end
     end
 

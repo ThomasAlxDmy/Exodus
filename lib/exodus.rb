@@ -13,35 +13,39 @@ module Exodus
 		  yield(configuration) if block_given?
 		end
 
-		# Loads and runs a number of migrations equal to step (or all of them if step is nil)
+		# Executes a number of migrations equal to step (or all of them if step is nil)
 		def run_migrations(direction, migrations, step = nil)			
 			if migrations
-				sorted_migrations = sort_migrations(migrations)
 				sorted_migrations = order_with_direction(sorted_migrations, direction)
 				sorted_migrations = sorted_migrations.shift(step.to_i) if step 
 
-				sorted_migrations.each {|migration_class, args| run_each(migration_class, direction, args)} 
+				run_each(sorted_migrations)
 			else
 				puts "no migrations given in argument!"
 			end
 		end
 
+	  # Migrations order need to be reverted if the direction is down 
+	  # (we want the latest executed migration to be the first reverted)
+	  def order_with_direction(migrations, direction)
+	  	sorted_migrations = sort_migrations(migrations)
+	  	direction == Migration::UP ? sorted_migrations : sorted_migrations.reverse 
+	  end
+
 	  def sort_migrations(migrations)
 	    migrations.sort_by {|migration,args| migration.migration_number }
 	  end
 
-	  def order_with_direction(migrations, direction)
-	  	direction == Migration::UP ? migrations : migrations.reverse 
+	  # Runs each migration separately, migration's arguments default value is set to an empty hash
+	  def run_each(direction, migrations)
+	  	migrations.each do |migration_class, args|
+		  	print_tabulation { run_one_migration(migration_class, direction, args || {}) }
+		  end
 	  end
 
-	  def run_each(migration_class, direction, args = {})
-	  	puts "\n"
-	  	args ||= {}
-	  	
-	  	run_one_migration(migration_class, direction, args)
-	  	puts "\n"
-	  end
-
+	  # Looks up in the database if a migration with the same class and same arguments already exists
+	  # Otherwise instanciate a new one
+	  # Runs the migration if it is runnable
 	  def run_one_migration(migration_class, direction, args)
 	  	# Going throught MRD because MM request returns nil for some reason
 	  	current_migration = migration_class.load(migration_class.collection.find('status.arguments' => args).first)
@@ -58,11 +62,18 @@ module Exodus
 	  			raise
 	  		end
 
-	  		# save the migration
 	    	current_migration.save!
 	    else
 	    	puts "#{current_migration.class}#{current_migration.status.arguments}(#{direction}) as Already been run (or is not runnable)."
 	    end
+	  end
+
+	  private
+
+	  def print_tabulation
+	  	puts "\n"
+		  yield if block_given?
+		  puts "\n"
 	  end
 	end
 end
