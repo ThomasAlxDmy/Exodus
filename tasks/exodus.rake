@@ -1,3 +1,5 @@
+require 'rake'
+
 def time_it(task, &block)
   puts "#{task} starting..."
   start = Time.now

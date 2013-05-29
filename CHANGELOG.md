@@ -1,3 +1,7 @@
+## v1.0.3
+
+* Bug fix -- rake needs to be required in exodus.rake
+
 ## v1.0.2
 
 * Gem can now been included in any ruby project
