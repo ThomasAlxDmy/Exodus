@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ['thomas@fanhattan.com', 'thomas.dmytryk@supinfo.com']
   gem.description   = %q{Exodus is a migration framework for MongoDb}
   gem.summary       = %q{Exodus uses mongomapper to provide a complete migration framework}
-  gem.homepage      = ''
+  gem.homepage      = 'https://github.com/ThomasAlxDmy/Exodus'
   gem.license       = 'MIT'
 
   gem.files         = `git ls-files`.split($\)
