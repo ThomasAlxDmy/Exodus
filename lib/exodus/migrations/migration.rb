@@ -1,9 +1,11 @@
 module Exodus
   class Migration
     include MongoMapper::Document
+    set_collection_name 'migrations'
+
     UP = 'up'
     DOWN = 'down'
-    @migrations_with_args = []
+    @migrations = []
 
     timestamps!
 
@@ -21,8 +23,13 @@ module Exodus
       def inherited(klass)
         klass.embedded_callbacks_on if defined?(MongoMapper::Plugins::EmbeddedCallbacks::ClassMethods) #MongoMapper version compatibility
         klass.migration_number = 0
-        @migrations_with_args << [klass]
+        @migrations << [klass]
         super(klass)
+      end
+
+      # Sorts all migrations by migration number
+      def sort_all
+        @migrations.sort_by {|migration,args| migration.migration_number }
       end
 
       # Using a list of migrations
@@ -36,15 +43,15 @@ module Exodus
               formated_migration = format(migration, args)
               migration, args = formated_migration
 
-              unless @migrations_with_args.include?(formated_migration)
-                @migrations_with_args.delete_if {|loaded_migration, loaded_args| migration == loaded_migration && (loaded_args.nil? || loaded_args.empty?) }
-                @migrations_with_args << formated_migration
+              unless @migrations.include?(formated_migration)
+                @migrations.delete_if {|loaded_migration, loaded_args| migration == loaded_migration && (loaded_args.nil? || loaded_args.empty?) }
+                @migrations << formated_migration
               end
             end
           end 
         end
 
-        @migrations_with_args
+        @migrations
       end
 
       # Using a list of migrations formats them and removes duplicates 
@@ -65,7 +72,7 @@ module Exodus
         puts "\n Migration n#:  \t\t   Name: \t\t\t\t Description:"
         puts '-' * 100, "\n"
 
-        @migrations_with_args.map do|migration, args|
+        Migration.sort_all.map do|migration, args|
           m = migration.new
           puts "\t#{migration.migration_number} \t\t #{migration.name} \t\t #{m.description}"
         end

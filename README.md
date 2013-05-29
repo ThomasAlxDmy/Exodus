@@ -30,13 +30,20 @@ Exodus - a migration framework for MongoDb
 
 # Configuration
 
-  You need to configure 3 things before using Exodus: the database name, the mongodb connection and the config file location
+  You need to configure 4 things before using Exodus: the database name, the mongodb connection, the config file location and the path to the directory that will include your migrations:
+
+    require 'exodus'
 
     Exodus.configure do |config| 
       config.db = 'migration_db'
       config.connection = Mongo::MongoClient.new("127.0.0.1", 27017, :pool_size => 5, :pool_timeout => 5)
       config.config_file = File.dirname(__FILE__) + '/config/config.yml'
+      config.migrations_directory = File.dirname(__FILE__) + '/models/migrations'
     end
+
+  Then you just need to loads the migrations tasks by adding the following line to your rakefile:
+
+    load Exodus.tasks 
 
   ... And you're all set!
 
@@ -150,6 +157,11 @@ Exodus - a migration framework for MongoDb
 ## db:migrate:yml_status
   Prints on the screen the content of the yml configuration file
 
-    rake db:migrate:status
+    rake db:migrate:yml_status
+
+## db:mongo_info
+  Prints on the screen information about the current mongo connection
+
+    rake db:mongo_info
 
 

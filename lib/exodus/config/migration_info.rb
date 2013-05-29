@@ -1,6 +1,6 @@
 module Exodus
 	class MigrationInfo
-		attr_accessor :info
+		attr_accessor :info, :migrations_directory
 		attr_reader :config_file, :db, :connection
 
 		def initialize(file = nil)

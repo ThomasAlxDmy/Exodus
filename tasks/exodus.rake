@@ -12,13 +12,14 @@ end
 task :require_env do
   require 'csv'
   require File.dirname(__FILE__) + '/../lib/exodus'
+  Exodus.load_migrations
 end
 
 namespace :db do
   desc "Migrate the database"
   task :migrate => :require_env do 
     time_it "db:migrate#{" step #{step}" if step}" do 
-      migrations = Migration.load_all(Exodus.migrations_info.migrate)
+      migrations = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
       Exodus::run_migrations('up', migrations, step)
     end
   end
@@ -26,9 +27,14 @@ namespace :db do
   desc "Rolls the database back to the previous version"
   task :rollback => :require_env do 
     time_it "db:rollback#{" step #{step}" if step}" do 
-      migrations = Migration.load_all(Exodus.migrations_info.rollback)
+      migrations = Exodus::Migration.load_all(Exodus.migrations_info.rollback)
       Exodus::run_migrations('down', migrations, step)
     end
+  end
+
+  desc "Shows informations about the current mongo connection"
+  task :mongo_info => :require_env do 
+    p MongoMapper.database
   end
 
   namespace :migrate do
@@ -38,7 +44,7 @@ namespace :db do
          migrations = if args[:migrations_info]
           YAML.load(args[:migrations_info])
         else
-          Migration.load_custom(Exodus.migrations_info.migrate_custom)
+          Exodus::Migration.load_custom(Exodus.migrations_info.migrate_custom)
         end
 
         Exodus::run_migrations('up', migrations, step)
@@ -47,7 +53,7 @@ namespace :db do
 
     desc "Lists all the migrations"
     task :list => :require_env do 
-      Migration.list
+      Exodus::Migration.list
     end
 
     desc "Loads migration.yml and displays it"
@@ -57,7 +63,7 @@ namespace :db do
 
     desc "Displays the current status of migrations"
     task :status => :require_env do 
-      Migration.db_status
+      Exodus::Migration.db_status
     end
   end
 
@@ -68,7 +74,7 @@ namespace :db do
          migrations = if args[:migrations_info]
           YAML.load(args[:migrations_info])
         else
-          Migration.load_custom(Exodus.migrations_info.rollback_custom)
+          Exodus::Migration.load_custom(Exodus.migrations_info.rollback_custom)
         end
 
         Exodus::run_migrations('down', migrations, step)

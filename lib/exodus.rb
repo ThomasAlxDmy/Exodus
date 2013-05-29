@@ -16,13 +16,24 @@ module Exodus
 		  yield(configuration) if block_given?
 		end
 
+		# Loads existing migrations into memory
+		def load_migrations
+			raise StandardError, 'A migrations directory is needed in order to load migrations.' unless migrations_info.migrations_directory
+			Dir[migrations_info.migrations_directory + '/*.rb'].each { |file|  require file}
+		end
+
+		# Returns the path of the rake file 
+		def tasks
+			File.dirname(__FILE__) + '/../tasks/exodus.rake'
+		end
+
 		# Executes a number of migrations equal to step (or all of them if step is nil)
 		def run_migrations(direction, migrations, step = nil)			
 			if migrations
-				sorted_migrations = order_with_direction(sorted_migrations, direction)
+				sorted_migrations = order_with_direction(migrations, direction)
 				sorted_migrations = sorted_migrations.shift(step.to_i) if step 
 
-				run_each(sorted_migrations)
+				run_each(direction, sorted_migrations)
 			else
 				puts "no migrations given in argument!"
 			end
