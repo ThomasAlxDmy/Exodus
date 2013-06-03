@@ -1,5 +1,4 @@
 require "spec_helper"
-require File.dirname(__FILE__) + "/../../lib/exodus"
 
 describe Exodus::Migration do
 
@@ -170,17 +169,6 @@ describe Exodus::Migration do
 
         subject.is_runnable?('up').should be_true 
         subject.is_runnable?('down').should be_true
-      end
-    end
-  end
-
-  describe "MigrationFramework" do 
-    describe "sort_migrations" do 
-      it "should return the migrations sorted by migration number" do 
-        CompleteNewMigration.migration_number = 10
-        sorted_migrations = Exodus::sort_migrations(Exodus::Migration.load_all([]))
-        migrations_number = sorted_migrations.map {|migration, args| migration.migration_number }
-        migrations_number.should == migrations_number.sort          
       end
     end
   end
