@@ -18,7 +18,7 @@ Exodus - a migration framework for MongoDb
   
   Add this line to your application's Gemfile:
 
-      $ gem 'exodus'
+      gem 'exodus'
 
   And then execute bundle install:
 
