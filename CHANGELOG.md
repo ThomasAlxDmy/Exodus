@@ -1,3 +1,7 @@
+## v1.0.4
+
+* Custom migrations now runs in the given order
+
 ## v1.0.3
 
 * Bug fix -- rake needs to be required in exodus.rake

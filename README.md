@@ -18,7 +18,7 @@ Exodus - a migration framework for MongoDb
   
   Add this line to your application's Gemfile:
 
-      $ gem 'exodus'
+      gem 'exodus'
 
   And then execute bundle install:
 
@@ -37,7 +37,7 @@ Exodus - a migration framework for MongoDb
     Exodus.configure do |config| 
       config.db = 'migration_db'
       config.connection = Mongo::MongoClient.new("127.0.0.1", 27017, :pool_size => 5, :pool_timeout => 5)
-      config.config_file = File.dirname(__FILE__) + '/config/config.yml'
+      config.config_file = File.dirname(__FILE__) + '/config/migrations.yml'
       config.migrations_directory = File.dirname(__FILE__) + '/models/migrations'
     end
 
@@ -132,17 +132,17 @@ Exodus - a migration framework for MongoDb
     rake db:rollback
     rake db:rollback STEP=2
 
-## db:migrate_custom
-  Executes all custom migrations that haven't run yet. You can pass custom migrations in parameters, otherwise custom migrations will be loaded from config/migration.yml. You can use an extra parameter to run only the last x ones.
+## db:migrate:custom
+  Executes all custom migrations that haven't run yet. Custom migrations will be loaded from your config file. Custom migrations will run in order of appearence. You can set the STEP enviroment variable to rollback only the last x ones.
 
-    rake db:migrate_custom
-    rake db:migrate_custom STEP=2
+    rake db:migrate:custom
+    rake db:migrate:custom STEP=2
 
-## db:rollback_custom
-  Executes all custom migrations that haven't run yet. You can pass custom migrations in parameters, otherwise custom migrations will be loaded from config/migration.yml. You can use an extra parameter to run only the last x ones.
+## db:rollback:custom
+  Executes all custom migrations that haven't run yet. Custom migrations will be loaded from your config file. Custom migrations will run in order of appearence. You can set the STEP enviroment variable to rollback only the last x ones.
 
-    rake db:rollback_custom
-    rake db:rollback_custom STEP=2
+    rake db:rollback:custom
+    rake db:rollback:custom STEP=2
 
 ## db:migrate:list
   Lists all the migrations.

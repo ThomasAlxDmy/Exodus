@@ -126,4 +126,111 @@ describe Exodus do
       end
     end
   end
+
+  describe "find_existing_migration" do
+    before do
+      class Migration_test6 < Exodus::Migration
+        def up 
+          'valid'
+        end
+      end
+      class Migration_test8 < Exodus::Migration
+        def up 
+          'valid'
+        end
+      end
+    end
+
+    before :each do
+      Exodus::Migration.collection.drop
+    end
+
+    describe "When no migrations have been ran" do 
+      it "should not find any migration" do 
+        Exodus.find_existing_migration(Migration_test8, {}).should be_nil
+      end
+    end
+
+    describe "When a different migration has been ran" do 
+      it "should not find any migration" do 
+        Exodus.run_one_migration(Migration_test6, 'up', {})
+        Exodus.find_existing_migration(Migration_test8, {}).should be_nil
+      end
+    end
+
+    describe "When the migration has been ran" do 
+      it "should find the migration" do 
+        Exodus.run_one_migration(Migration_test8, 'up', {})
+        Exodus.find_existing_migration(Migration_test8, {}).class.should == Migration_test8
+      end
+    end
+
+    describe "When all migrations have been ran" do 
+      it "should find the migration" do 
+        Exodus.run_one_migration(Migration_test6, 'up', {})
+        Exodus.run_one_migration(Migration_test8, 'up', {})
+        Exodus.find_existing_migration(Migration_test8, {}).class.should == Migration_test8
+      end
+    end
+  end
+
+  describe "run_migrations and run_sorted_migrations" do
+    before do
+      class Migration_test9 < Exodus::Migration
+        @migration_number = 9
+        def up 
+          UserSupport.create!({:name => "Thomas"})
+        end
+      end
+      class Migration_test10 < Exodus::Migration
+        @migration_number = 10
+        def up 
+          UserSupport.create!({:name => "Tester"})
+        end
+      end
+    end
+
+    before :each do 
+      UserSupport.collection.drop
+      Exodus::Migration.collection.drop
+    end
+
+    describe "running the same migration in a different order with run_migrations" do 
+      it "should successfully run them in different order" do
+        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+        Exodus.run_migrations('up', migrations)
+        users = UserSupport.all
+
+        users.first.name.should == "Thomas"
+        users.last.name.should == "Tester"
+
+        UserSupport.collection.drop
+        Exodus::Migration.collection.drop
+        Exodus.run_migrations('up', migrations.reverse)
+        users = UserSupport.all
+
+        users.first.name.should == "Tester"
+        users.last.name.should == "Thomas"
+      end
+    end
+
+    describe "running the same migration in a different order with run_sorted_migrations" do 
+      it "should successfully run them in the same order" do
+        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+        Exodus.run_sorted_migrations('up', migrations)
+        users = UserSupport.all
+
+        users.first.name.should == "Thomas"
+        users.last.name.should == "Tester"
+
+        UserSupport.collection.drop
+        Exodus::Migration.collection.drop
+        Exodus.run_sorted_migrations('up', migrations.reverse)
+        users = UserSupport.all
+
+        users.first.name.should == "Thomas"
+        users.last.name.should == "Tester"
+      end
+    end
+  end
 end
