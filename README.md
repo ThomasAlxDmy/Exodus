@@ -64,10 +64,6 @@ Exodus - a migration framework for MongoDb
 ## To Do when writting your own
 
 * Give it a migration_number
-    class MyMigration < Exodus::Migration
-      self.migration_number = 1
-    end
-
 * Initialize it and define status_complete and description
 * Write the UP method that will be call when migrating the migration
 * Write the DOWN method that will be call when rolling back the migration
