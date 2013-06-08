@@ -22,7 +22,7 @@ namespace :db do
   task :migrate => :require_env do 
     time_it "db:migrate#{" step #{step}" if step}" do 
       migrations = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
-      Exodus::run_migrations('up', migrations, step)
+      Exodus::run_sorted_migrations('up', migrations, step)
     end
   end
 
@@ -30,7 +30,7 @@ namespace :db do
   task :rollback => :require_env do 
     time_it "db:rollback#{" step #{step}" if step}" do 
       migrations = Exodus::Migration.load_all(Exodus.migrations_info.rollback)
-      Exodus::run_migrations('down', migrations, step)
+      Exodus::run_sorted_migrations('down', migrations, step)
     end
   end
 
