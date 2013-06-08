@@ -27,15 +27,24 @@ module Exodus
 			File.dirname(__FILE__) + '/../tasks/exodus.rake'
 		end
 
+		# Sorts and executes a number of migrations equal to step (or all of them if step is nil)
+		def run_sorted_migrations(direction, migrations, step = nil)			
+			if migrations
+				sorted_migrations = order_with_direction(migrations, direction)
+				run_migrations(direction, sorted_migrations, step)
+			else
+				raise StandardError, "no migrations given in argument!"
+			end
+		end
+
+
 		# Executes a number of migrations equal to step (or all of them if step is nil)
 		def run_migrations(direction, migrations, step = nil)			
 			if migrations
-				sorted_migrations = order_with_direction(migrations, direction)
-				sorted_migrations = sorted_migrations.shift(step.to_i) if step 
-
-				run_each(direction, sorted_migrations)
+				migrations = migrations.shift(step.to_i) if step 
+				run_each(direction, migrations)
 			else
-				puts "no migrations given in argument!"
+				puts "Unable to find migrations!"
 			end
 		end
 
@@ -57,16 +66,13 @@ module Exodus
 		  end
 	  end
 
-	  # Looks up in the database if a migration with the same class and same arguments already exists
+	  
 	  # Otherwise instanciate a new one
 	  # Runs the migration if it is runnable
 	  def run_one_migration(migration_class, direction, args)
-	  	# Going throught MRD because MM request returns nil for some reason
-	  	current_migration = migration_class.load(migration_class.collection.find('status.arguments' => args).first)
-	  	current_migration ||= migration_class.new(:status => {:arguments => args})
+	  	current_migration = find_existing_migration(migration_class, args) || migration_class.new(:status => {:arguments => args})
 
 	  	if current_migration.is_runnable?(direction)
-	  		# Make sure we save all info in case of a failure 
 	  		begin
 	  			current_migration.run(direction)
 	  			current_migration.status.error = nil
@@ -80,6 +86,16 @@ module Exodus
 	    else
 	    	puts "#{current_migration.class}#{current_migration.status.arguments}(#{direction}) as Already been run (or is not runnable)."
 	    end
+	  end
+
+	  # Looks up in the database if a migration with the same class and same arguments already exists
+	  # Returns nil or the migration if one is found
+	  def find_existing_migration(migration_class, args)
+	  	existing_migrations = migration_class.collection.find('status.arguments' => args)
+	  	existing_migrations.detect do |migration|
+	  		existing_migration = migration_class.load(migration)
+				return existing_migration if existing_migration.is_a?(migration_class)
+	  	end
 	  end
 
 	  private
