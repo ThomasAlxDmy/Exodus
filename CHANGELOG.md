@@ -1,3 +1,7 @@
+## v1.0.5
+
+* Added helpers folder + module to do cleaner and prettier prints
+
 ## v1.0.4
 
 * Custom migrations now runs in the given order
