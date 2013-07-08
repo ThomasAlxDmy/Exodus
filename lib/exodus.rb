@@ -1,4 +1,5 @@
 require 'mongo_mapper'
+require File.dirname(__FILE__) + '/exodus/helpers/text_formatter'
 require File.dirname(__FILE__) + '/exodus/config/migration_info'
 require File.dirname(__FILE__) + '/exodus/migrations/migration'
 require File.dirname(__FILE__) + '/exodus/migrations/migration_error'

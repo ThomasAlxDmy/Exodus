@@ -1,6 +1,7 @@
 module Exodus
   class Migration
     include MongoMapper::Document
+    extend Exodus::TextFormatter
     set_collection_name 'migrations'
 
     UP = 'up'
@@ -69,27 +70,24 @@ module Exodus
 
       # Prints in the console all migrations class with their name and description  
       def list
-        puts "\n Migration n#:  \t\t   Name: \t\t\t\t Description:"
-        puts '-' * 100, "\n"
+        last_info = [["Migration n#:", "Name:", "Description:"]]
 
-        Migration.sort_all.map do|migration, args|
-          m = migration.new
-          puts "\t#{migration.migration_number} \t\t #{migration.name} \t\t #{m.description}"
+        last_info |= Migration.sort_all.map do|migration, args|
+          [migration.migration_number, migration.name, migration.new.description]
         end
 
-        puts "\n\n"
+        super_print(last_info, 70)
       end 
 
       # Prints in the console all migrations that has been ran at least once with their name and description  
       def db_status
-        puts "\n Migration n#:  \t   Name: \t\t     Direction:     Arguments:      Current Status: \t Last completion Date: \t\t Current Message:"
-        puts '-' * 175, "\n"
+        status_info = [["Migration n#:", "Name:", "Direction:", "Current Status:", "Arguments:", "Last completion Date:", "Current Message:"]]
 
-        Migration.all.each do|migration|
-          puts "\t#{migration.class.migration_number} \t #{migration.class.name} \t #{migration.status.to_string}"
+        status_info |= Migration.all.map do|migration|
+          [migration.class.migration_number, migration.class.name, *migration.status.to_a_string]
         end
 
-        puts "\n\n"
+        super_print(status_info)
       end 
     end
 

@@ -25,7 +25,15 @@ module Exodus
     end
 
     def to_string
-      "\t#{direction}\t\t #{arguments}\t\t #{current_status} \t\t #{last_succesful_completion} \t\t #{message}"
+      "\t#{direction}\t\t #{current_status} \t\t #{arguments}\t\t #{last_succesful_completion} \t\t #{message}"
+    end
+
+    def to_a
+      [direction, current_status, arguments, last_succesful_completion, message]
+    end
+
+    def to_a_string
+      self.to_a.map(&:to_s)
     end
 
     # Resets a status
