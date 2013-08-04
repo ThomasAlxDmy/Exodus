@@ -1,3 +1,7 @@
+## v1.0.6
+
+* Text formatter bug fix
+
 ## v1.0.5
 
 * Added helpers folder + module to do cleaner and prettier prints
