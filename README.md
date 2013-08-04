@@ -1,9 +1,7 @@
 Exodus - a migration framework for MongoDb
 =============
 
-# Intro 
-
-## A migration Framework for a schemaless database ??
+# A migration Framework for a schemaless database?
 
   After working with Mongo for long time now I can tell you working with a schemaless database does not mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency; Especially when your code is live in production and used by millions of users. 
 
