@@ -1,7 +1,7 @@
-Exodus - a migration framework for MongoDb
+Exodus - A migration framework for MongoDb
 =============
 
-# A migration Framework for a schemaless database?
+## A migration Framework for a schemaless database?
 
   After working with Mongo for long time now I can tell you working with a schemaless database does not mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency; Especially when your code is live in production and used by millions of users. 
 
@@ -11,8 +11,9 @@ Exodus - a migration framework for MongoDb
   * It's Auto runnable on deploy
   * When switching enviromment (dev, pre-prod, prod) you don't need to worry if the script has been ran or not. The framework takes care of it for you
 
+  Exodus has been used in production since March 2013.
 
-# Installation
+## Installation
   
   Add this line to your application's Gemfile:
 
@@ -26,7 +27,7 @@ Exodus - a migration framework for MongoDb
 
     $ gem install exodus
 
-# Configuration
+## Configuration
 
   You need to configure 4 things before using Exodus: the database name, the mongodb connection, the config file location and the path to the directory that will include your migrations:
 
@@ -46,7 +47,7 @@ Exodus - a migration framework for MongoDb
   ... And you're all set!
 
 
-# Basic knowledge
+## Basic knowledge
 
 * All Migrations have to be ruby classes that inherits from Migration class. 
 * Migrations have a direction (UP or DOWN)
@@ -59,7 +60,7 @@ Exodus - a migration framework for MongoDb
 * Migrations will run in order using the migration_number
 * Migrations can be rerunnable safe, rerunnable safe migrations will run on each db:migrate even if the migration has already been run!
 
-## To Do when writting your own
+### To Do when writting your own
 
 * Give it a migration_number
 * Initialize it and define status_complete and description
@@ -68,7 +69,7 @@ Exodus - a migration framework for MongoDb
 * If your migration contains distinct steps that you want to split up I recommand using the "step" DSL
 
 
-## Good example
+### Good example
 
     class RenameNameToFirstName < Exodus::Migration
       self.migration_number = 1
@@ -112,48 +113,48 @@ Exodus - a migration framework for MongoDb
       end
     end
 
-# Commands
+## Commands
 
-## db:migrate
+### db:migrate
   Executes all migrations that haven't run yet. You can the STEP enviroment to run only the first x ones.
 
     rake db:migrate
     rake db:migrate STEP=2
 
-## db:rollback
+### db:rollback
   Rolls back all migrations that haven't run yet. You can set the STEP enviroment variable to rollback only the last x ones.
 
     rake db:rollback
     rake db:rollback STEP=2
 
-## db:migrate:custom
+### db:migrate:custom
   Executes all custom migrations that haven't run yet. Custom migrations will be loaded from your config file. Custom migrations will run in order of appearence. You can set the STEP enviroment variable to rollback only the last x ones.
 
     rake db:migrate:custom
     rake db:migrate:custom STEP=2
 
-## db:rollback:custom
+### db:rollback:custom
   Executes all custom migrations that haven't run yet. Custom migrations will be loaded from your config file. Custom migrations will run in order of appearence. You can set the STEP enviroment variable to rollback only the last x ones.
 
     rake db:rollback:custom
     rake db:rollback:custom STEP=2
 
-## db:migrate:list
+### db:migrate:list
   Lists all the migrations.
 
     rake db:migrate:list
 
-## db:migrate:status
+### db:migrate:status
   Gives a preview of what as been run on the current database.
 
     rake db:migrate:status
 
-## db:migrate:yml_status
+### db:migrate:yml_status
   Prints on the screen the content of the yml configuration file
 
     rake db:migrate:yml_status
 
-## db:mongo_info
+### db:mongo_info
   Prints on the screen information about the current mongo connection
 
     rake db:mongo_info
