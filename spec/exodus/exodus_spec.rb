@@ -250,12 +250,12 @@ describe Exodus do
     describe "Getting migration information" do 
       it "should successfully print the migrations information" do
         migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
-        Exodus.sort_and_run_migrations('up', migrations, nil, true).should == ["Migration_test9: {}", "Migration_test10: {}"]
+        Exodus.sort_and_run_migrations('up', migrations, nil, true).should == ["Migration_test9: #{{}}", "Migration_test10: #{{}}"]
       end
 
       it "should successfully print the first migration information" do
         migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
-        Exodus.sort_and_run_migrations('up', migrations, 1, true).should == ["Migration_test9: {}"]
+        Exodus.sort_and_run_migrations('up', migrations, 1, true).should == ["Migration_test9: #{{}}"]
       end
     end
   end
