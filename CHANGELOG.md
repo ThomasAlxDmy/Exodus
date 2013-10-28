@@ -1,3 +1,10 @@
+## v1.1.0
+
+* Changed the way migration are executed 
+* Cleaner output
+* Ability to see which migration will be executed before rake db:migrate and db:rollback with rake db:migrate:show and db:rollback:show
+* Fixed a text formatter issue
+
 ## v1.0.6
 
 * Text formatter bug fix

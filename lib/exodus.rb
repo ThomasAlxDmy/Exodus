@@ -29,64 +29,69 @@ module Exodus
 		end
 
 		# Sorts and executes a number of migrations equal to step (or all of them if step is nil)
-		def run_sorted_migrations(direction, migrations, step = nil)			
-			if migrations
-				sorted_migrations = order_with_direction(migrations, direction)
-				run_migrations(direction, sorted_migrations, step)
+		def sort_and_run_migrations(direction, migrations_info, step = nil, show_characteristic = false)			
+			if migrations_info
+				sorted_migrations_info = order_with_direction(migrations_info, direction)
+				runnable_migrations = find_runable_migrations(direction, sorted_migrations_info, step)
+
+				if show_characteristic 
+					runnable_migrations.map(&:characteristic)
+				else
+					run_migrations(direction, runnable_migrations)
+				end
 			else
 				raise StandardError, "no migrations given in argument!"
 			end
 		end
 
+		# Instanciates all of the migrations and returns the ones that are runnable
+		def find_runable_migrations(direction, migrations_info, step)
+	  	runnable_migrations = migrations_info.map do |migration_class, args| 
+	  		migration = instanciate_migration(migration_class, args)
+	  		migration if migration.is_runnable?(direction)
+	  	end.compact
 
-		# Executes a number of migrations equal to step (or all of them if step is nil)
-		def run_migrations(direction, migrations, step = nil)			
-			if migrations
-				migrations = migrations.shift(step.to_i) if step 
-				run_each(direction, migrations)
-			else
-				puts "Unable to find migrations!"
-			end
-		end
+	  	step ? runnable_migrations.shift(step.to_i) : runnable_migrations
+	  end
 
 	  # Migrations order need to be reverted if the direction is down 
 	  # (we want the latest executed migration to be the first reverted)
-	  def order_with_direction(migrations, direction)
-	  	sorted_migrations = sort_migrations(migrations)
+	  def order_with_direction(migrations_info, direction)
+	  	sorted_migrations = sort_migrations(migrations_info)
 	  	direction == Migration::UP ? sorted_migrations : sorted_migrations.reverse 
 	  end
 
-	  def sort_migrations(migrations)
-	    migrations.sort_by {|migration,args| migration.migration_number }
+	  # Sorts migrations using the migration number
+	  def sort_migrations(migrations_info)
+	    migrations_info.sort_by {|migration,args| migration.migration_number }
 	  end
 
 	  # Runs each migration separately, migration's arguments default value is set to an empty hash
-	  def run_each(direction, migrations)
-	  	migrations.each do |migration_class, args|
-		  	print_tabulation { run_one_migration(migration_class, direction, args || {}) }
+	  def run_migrations(direction, migrations)
+	  	migrations.each do |migration|
+		  	print_tabulation { run_one_migration(migration, direction) }
 		  end
 	  end
-
 	  
-	  # Otherwise instanciate a new one
-	  # Runs the migration if it is runnable
-	  def run_one_migration(migration_class, direction, args)
-	  	current_migration = find_existing_migration(migration_class, args) || migration_class.new(:status => {:arguments => args})
+	  # Runs the migration and save the current status into mongo
+	  def run_one_migration(migration, direction)
+  		begin
+  			migration.run(direction)
+  			migration.status.error = nil
+  		rescue Exception => e
+  			migration.failure = e
+  			migration.save!
+  			raise
+  		end
 
-	  	if current_migration.is_runnable?(direction)
-	  		begin
-	  			current_migration.run(direction)
-	  			current_migration.status.error = nil
-	  		rescue Exception => e
-	  			current_migration.failure = e
-	  			current_migration.save!
-	  			raise
-	  		end
+	    migration.save!
+	  end
 
-	    	current_migration.save!
-	    else
-	    	puts "#{current_migration.class}#{current_migration.status.arguments}(#{direction}) as Already been run (or is not runnable)."
-	    end
+	  # Database lookup to find  a migration given its class and its arguments
+	  # Instanciates it if the migration is not present in the database 
+	  def instanciate_migration(migration_class, args)
+	  	args ||= {}
+	  	find_existing_migration(migration_class, args) || migration_class.new(:status => {:arguments => args})
 	  end
 
 	  # Looks up in the database if a migration with the same class and same arguments already exists
@@ -95,6 +100,7 @@ module Exodus
 	  	existing_migrations = migration_class.collection.find('status.arguments' => args)
 	  	existing_migrations.detect do |migration|
 	  		existing_migration = migration_class.load(migration)
+
 				return existing_migration if existing_migration.is_a?(migration_class)
 	  	end
 	  end

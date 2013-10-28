@@ -21,6 +21,7 @@ module Exodus
 
       paragraphes.each_with_index do |sentences, paragraph_number|
         sentences.each_with_index do |sentence, column|
+          sentence = sentence.to_s
           words = sentence.gsub('=>', ' => ').split(' ') || ''
           
           if sentence.size > space_number && (words).size > 1

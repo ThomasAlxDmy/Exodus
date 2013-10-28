@@ -124,6 +124,10 @@ module Exodus
       (direction == UP && self.status.current_status == self.status_complete) || (direction == DOWN && self.status.current_status == 0)
     end
 
+    def characteristic
+      "#{self.class}: #{self.status.arguments}"
+    end
+
     protected
 
     # Executes a given block if the status has not being processed
