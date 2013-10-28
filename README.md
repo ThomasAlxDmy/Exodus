@@ -127,6 +127,18 @@ Exodus - A migration framework for MongoDb
     rake db:rollback
     rake db:rollback STEP=2
 
+### db:migrate:show
+  Print in the console all migrations that rake db:migrate will run. Does NOT run any migration. You can the STEP enviroment to run only the first x ones.
+
+    rake db:migrate:show
+    rake db:migrate:show STEP=2
+
+### db:rollback:show
+  Print in the console all migrations that rake db:rollback will run. Does NOT run any migration. You can set the STEP enviroment variable to rollback only the last x ones.
+
+    rake db:rollback:show
+    rake db:rollback:show STEP=2
+
 ### db:migrate:custom
   Executes all custom migrations that haven't run yet. Custom migrations will be loaded from your config file. Custom migrations will run in order of appearence. You can set the STEP enviroment variable to rollback only the last x ones.
 

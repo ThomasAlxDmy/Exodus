@@ -88,19 +88,22 @@ describe Exodus do
     describe "When the migration has not been ran" do 
       describe "with a valid migration" do 
         it "should successfully create the migration" do 
-          lambda{ Exodus.run_one_migration(Migration_test6, 'up', {})}.should 
+          migration = Exodus.instanciate_migration(Migration_test6, {})
+          lambda{ Exodus.run_one_migration(migration, 'up')}.should 
           change {Exodus::Migration}.by(1)
         end
       end
 
       describe "with a failing migration" do 
+        let(:migration) {Exodus.instanciate_migration(Migration_test7, {})}
+
         it "should raise an error" do 
-          lambda{ Exodus.run_one_migration(Migration_test7, 'up', {})}.should
+          lambda {Exodus.run_one_migration(migration, 'up')}.should 
           raise_error(StandardError) 
         end
 
         it "should create the migration" do 
-          lambda{ Exodus.run_one_migration(Migration_test7, 'up', {})}.should
+          lambda {Exodus.run_one_migration(migration, 'up')}.should 
           change {Exodus::Migration}.by(1)
         end
       end
@@ -109,18 +112,20 @@ describe Exodus do
     describe "When the migration has been ran" do 
       describe "with a valid migration" do 
         it "should not create a new migration" do 
-          Exodus.run_one_migration(Migration_test6, 'up', {})
+          migration = Exodus.instanciate_migration(Migration_test6, {})
+          Exodus.run_one_migration(migration, 'up')
 
-          lambda{ Exodus.run_one_migration(Migration_test6, 'up', {})}.should 
+          lambda {Exodus.run_one_migration(migration, 'up')}.should 
           change {Exodus::Migration}.by(0)
         end
       end
 
       describe "with a failing migration" do 
         it "should not create a new migration" do 
-          Exodus.run_one_migration(Migration_test7, 'up', {}) rescue nil
+          migration = Exodus.instanciate_migration(Migration_test7, {})
+          Exodus.run_one_migration(migration, 'up') rescue nil
 
-          lambda{ Exodus.run_one_migration(Migration_test7, 'up', {})}.should 
+          lambda {Exodus.run_one_migration(migration, 'up')}.should 
           change {Exodus::Migration}.by(0)
         end
       end
@@ -153,28 +158,35 @@ describe Exodus do
 
     describe "When a different migration has been ran" do 
       it "should not find any migration" do 
-        Exodus.run_one_migration(Migration_test6, 'up', {})
+        migration = Exodus.instanciate_migration(Migration_test6, {})
+        Exodus.run_one_migration(migration, 'up')
+
         Exodus.find_existing_migration(Migration_test8, {}).should be_nil
       end
     end
 
     describe "When the migration has been ran" do 
       it "should find the migration" do 
-        Exodus.run_one_migration(Migration_test8, 'up', {})
+        migration = Exodus.instanciate_migration(Migration_test8, {})
+        Exodus.run_one_migration(migration, 'up')
+
         Exodus.find_existing_migration(Migration_test8, {}).class.should == Migration_test8
       end
     end
 
     describe "When all migrations have been ran" do 
       it "should find the migration" do 
-        Exodus.run_one_migration(Migration_test6, 'up', {})
-        Exodus.run_one_migration(Migration_test8, 'up', {})
+        migration6 = Exodus.instanciate_migration(Migration_test6, {})
+        migration8 = Exodus.instanciate_migration(Migration_test8, {})
+        Exodus.run_one_migration(migration6, 'up')
+        Exodus.run_one_migration(migration8, 'up')
+
         Exodus.find_existing_migration(Migration_test8, {}).class.should == Migration_test8
       end
     end
   end
 
-  describe "run_migrations and run_sorted_migrations" do
+  describe "run_migrations and sort_and_run_migrations" do
     before do
       class Migration_test9 < Exodus::Migration
         @migration_number = 9
@@ -197,7 +209,9 @@ describe Exodus do
 
     describe "running the same migration in a different order with run_migrations" do 
       it "should successfully run them in different order" do
-        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+        migrations_info = [[Migration_test9, {}], [Migration_test10, {}]]
+        migrations = migrations_info.map{|migration_info| Exodus.instanciate_migration(*migration_info)} 
+
         Exodus.run_migrations('up', migrations)
         users = UserSupport.all
 
@@ -214,10 +228,10 @@ describe Exodus do
       end
     end
 
-    describe "running the same migration in a different order with run_sorted_migrations" do 
+    describe "running the same migration in a different order with sort_and_run_migrations" do 
       it "should successfully run them in the same order" do
         migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
-        Exodus.run_sorted_migrations('up', migrations)
+        Exodus.sort_and_run_migrations('up', migrations)
         users = UserSupport.all
 
         users.first.name.should == "Thomas"
@@ -225,11 +239,23 @@ describe Exodus do
 
         UserSupport.collection.drop
         Exodus::Migration.collection.drop
-        Exodus.run_sorted_migrations('up', migrations.reverse)
+        Exodus.sort_and_run_migrations('up', migrations.reverse)
         users = UserSupport.all
 
         users.first.name.should == "Thomas"
         users.last.name.should == "Tester"
+      end
+    end
+
+    describe "Getting migration information" do 
+      it "should successfully print the migrations information" do
+        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+        Exodus.sort_and_run_migrations('up', migrations, nil, true).should == ["Migration_test9: {}", "Migration_test10: {}"]
+      end
+
+      it "should successfully print the first migration information" do
+        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+        Exodus.sort_and_run_migrations('up', migrations, 1, true).should == ["Migration_test9: {}"]
       end
     end
   end
