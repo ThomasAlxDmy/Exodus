@@ -49,7 +49,7 @@ module Exodus
 	  	runnable_migrations = migrations_info.map do |migration_class, args| 
 	  		migration = instanciate_migration(migration_class, args)
 	  		migration if migration.is_runnable?(direction)
-	  	end.compact
+	  	end.compact.uniq
 
 	  	step ? runnable_migrations.shift(step.to_i) : runnable_migrations
 	  end
