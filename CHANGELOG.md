@@ -1,3 +1,8 @@
+## v1.1.1
+
+* Extracted methods from the rake file itself into a module
+* Fixed running custom migrations
+
 ## v1.1.0
 
 * Changed the way migration are executed 

@@ -1,6 +1,10 @@
 require "spec_helper"
 
 describe Exodus do 
+  before do
+    Exodus::Migration.collection.drop
+  end
+
   describe "sort_migrations" do 
   	before do
       class Migration_test4 < Exodus::Migration; end
@@ -89,8 +93,7 @@ describe Exodus do
       describe "with a valid migration" do 
         it "should successfully create the migration" do 
           migration = Exodus.instanciate_migration(Migration_test6, {})
-          lambda{ Exodus.run_one_migration(migration, 'up')}.should 
-          change {Exodus::Migration}.by(1)
+          lambda{ Exodus.run_one_migration(migration, 'up')}.should change(Exodus::Migration, :count).by(1)
         end
       end
 
@@ -98,13 +101,11 @@ describe Exodus do
         let(:migration) {Exodus.instanciate_migration(Migration_test7, {})}
 
         it "should raise an error" do 
-          lambda {Exodus.run_one_migration(migration, 'up')}.should 
-          raise_error(StandardError) 
+          lambda {Exodus.run_one_migration(migration, 'up')}.should raise_error(StandardError) 
         end
 
-        it "should create the migration" do 
-          lambda {Exodus.run_one_migration(migration, 'up')}.should 
-          change {Exodus::Migration}.by(1)
+        it "should still create the migration" do 
+          lambda {Exodus.run_one_migration(migration, 'up') rescue nil}.should change(Exodus::Migration, :count).by(1)
         end
       end
     end
@@ -115,8 +116,7 @@ describe Exodus do
           migration = Exodus.instanciate_migration(Migration_test6, {})
           Exodus.run_one_migration(migration, 'up')
 
-          lambda {Exodus.run_one_migration(migration, 'up')}.should 
-          change {Exodus::Migration}.by(0)
+          lambda {Exodus.run_one_migration(migration, 'up')}.should change(Exodus::Migration, :count).by(0)
         end
       end
 
@@ -125,8 +125,7 @@ describe Exodus do
           migration = Exodus.instanciate_migration(Migration_test7, {})
           Exodus.run_one_migration(migration, 'up') rescue nil
 
-          lambda {Exodus.run_one_migration(migration, 'up')}.should 
-          change {Exodus::Migration}.by(0)
+          lambda {Exodus.run_one_migration(migration, 'up') rescue nil}.should change(Exodus::Migration, :count).by(0)
         end
       end
     end
@@ -194,6 +193,7 @@ describe Exodus do
           UserSupport.create!({:name => "Thomas"})
         end
       end
+
       class Migration_test10 < Exodus::Migration
         @migration_number = 10
         def up 
@@ -245,6 +245,16 @@ describe Exodus do
         users.first.name.should == "Thomas"
         users.last.name.should == "Tester"
       end
+    end
+
+    it "should run only one time the same migration" do
+      migrations = [[Migration_test9, {}], [Migration_test9, {}]] 
+      lambda {Exodus.sort_and_run_migrations('up', migrations)}.should change(Exodus::Migration, :count).by(1)
+    end
+
+    it "should run successfully only one time when specifying the step option" do
+      migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
+      lambda {Exodus.sort_and_run_migrations('up', migrations, 1)}.should change(Exodus::Migration, :count).by(1)
     end
 
     describe "Getting migration information" do 

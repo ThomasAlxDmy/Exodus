@@ -1,19 +1,10 @@
 require 'rake'
 
-def time_it(task, &block)
-  puts "#{task} starting..."
-  start = Time.now
-  yield
-  puts "#{task} Done in (#{Time.now-start}s)!!"
-end
-
-def step
-  ENV['STEP']
-end
-
 task :require_env do
   require 'csv'
   require File.dirname(__FILE__) + '/../lib/exodus'
+  require File.dirname(__FILE__) + '/../lib/exodus/helpers/rake_helper'
+  include Exodus::RakeHelper
   Exodus.load_migrations
 end
 
@@ -44,7 +35,9 @@ namespace :db do
     task :show => :require_env do 
       migrations = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
       puts "List of all the migrations that will be executed by running 'rake db:rollback#{" STEP=#{step}" if step}': \n\n"
-      puts Exodus::sort_and_run_migrations('up', migrations, step, true)
+      
+      migrations_info = Exodus::sort_and_run_migrations('up', migrations, step, true)
+      puts migrations_info.empty? ? "There is no new migrations to migrate." : migrations_info
     end
 
     desc "Manually migrates specified migrations (specify migrations or use config/migration.yml)"
@@ -56,8 +49,7 @@ namespace :db do
           Exodus::Migration.load_custom(Exodus.migrations_info.migrate_custom)
         end
 
-        migrations = migrations.shift(step.to_i) if step
-        Exodus::run_migrations('up', migrations)
+        Exodus::sort_and_run_migrations('up', migrations, step)
       end
     end
 
@@ -82,7 +74,9 @@ namespace :db do
     task :show => :require_env do 
       migrations = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
       puts "List of all the migrations that will be executed by running 'rake db:rollback#{" STEP=#{step}" if step}': \n\n"
-      puts Exodus::sort_and_run_migrations('down', migrations, step, true)
+
+      migrations_info = Exodus::sort_and_run_migrations('down', migrations, step, true)
+      puts migrations_info.empty? ? "There is no new migrations to rollback." : migrations_info
     end
 
     desc "Manually rolls the database back using specified migrations (specify migrations or use config/migration.yml)"
@@ -94,8 +88,7 @@ namespace :db do
           Exodus::Migration.load_custom(Exodus.migrations_info.rollback_custom)
         end
 
-        migrations = migrations.shift(step.to_i) if step
-        Exodus::run_migrations('down', migrations)
+        Exodus::sort_and_run_migrations('down', migrations, step)
       end
     end
   end

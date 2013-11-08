@@ -128,6 +128,14 @@ module Exodus
       "#{self.class}: #{self.status.arguments}"
     end
 
+    def eql?(other_migration)
+      self.class == other_migration.class && self.status.arguments == other_migration.status.arguments
+    end
+
+    def hash
+      self.class.hash ^ self.status.arguments.hash
+    end
+
     protected
 
     # Executes a given block if the status has not being processed
