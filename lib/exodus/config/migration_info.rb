@@ -26,7 +26,7 @@ module Exodus
 		end
 
 		def rake_namespace=(namespace)
-			@rake_namespace = namespace.to_s.empty? || namespace[-1] == ':' ? namespace.to_s : namespace + ':'
+			@rake_namespace = namespace.to_s.empty? || namespace.end_with?(':') ? namespace.to_s : namespace + ':'
 		end
 
 		def migrate
