@@ -1,14 +1,13 @@
 require 'rake'
+require File.dirname(__FILE__) + '/../lib/exodus'
+require File.dirname(__FILE__) + '/../lib/exodus/helpers/rake_helper'
 
 task :require_env do
-  require 'csv'
-  require File.dirname(__FILE__) + '/../lib/exodus'
-  require File.dirname(__FILE__) + '/../lib/exodus/helpers/rake_helper'
   include Exodus::RakeHelper
   Exodus.load_migrations
 end
 
-namespace :db do
+namespace Exodus.configuration.rake_namespace + 'db' do
   desc "Migrate the database"
   task :migrate => :require_env do 
     time_it "db:migrate#{" step #{step}" if step}" do 

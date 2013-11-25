@@ -1,3 +1,7 @@
+## v1.1.2
+
+* Exodus now supports custom namespacing to not conflict with AR db:migrate
+
 ## v1.1.1
 
 * Extracted methods from the rake file itself into a module

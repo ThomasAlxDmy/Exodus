@@ -1,6 +1,30 @@
 require "spec_helper"
 
 describe Exodus do 
+  describe Exodus::MigrationInfo do 
+    describe "#rake_namespace" do 
+      it "should use the namespace provided in the yml file" do 
+        Exodus.configuration.rake_namespace.should == 'test:'
+      end
+
+      it "should be blank when no namespace is given" do 
+        Exodus.configuration.rake_namespace = nil
+        Exodus.configuration.rake_namespace.should == ''
+
+        Exodus.configuration.rake_namespace = ''
+        Exodus.configuration.rake_namespace.should == ''
+      end
+
+      it "should end with ':' when a namespace is given" do 
+        Exodus.configuration.rake_namespace = 'test1'
+        Exodus.configuration.rake_namespace.should == 'test1:'
+
+        Exodus.configuration.rake_namespace = 'test2:'
+        Exodus.configuration.rake_namespace.should == 'test2:'
+      end
+    end
+  end
+
   before do
     Exodus::Migration.collection.drop
   end
