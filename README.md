@@ -171,4 +171,15 @@ Exodus - A migration framework for MongoDb
 
     rake db:mongo_info
 
+## Namespacing
 
+  You might be using other gems in your project that uses `rake db:migrate` or `rake db:rollback`. In order to avoid conflicts you can define rake_namespace, in the Ruby code: 
+
+    Exodus.configure do |config| 
+      config.rake_namespace = 'mongo'
+    end
+
+  Or in your Yaml file:
+
+    migration:
+      rake_namespace: 'mongo'

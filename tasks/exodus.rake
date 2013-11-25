@@ -33,7 +33,7 @@ namespace Exodus.configuration.rake_namespace + 'db' do
     desc "Show which migrations will be run when calling 'rake db:migrate'"
     task :show => :require_env do 
       migrations = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
-      puts "List of all the migrations that will be executed by running 'rake db:rollback#{" STEP=#{step}" if step}': \n\n"
+      puts "List of all the migrations that will be executed by running 'rake db:migrate#{" STEP=#{step}" if step}': \n\n"
       
       migrations_info = Exodus::sort_and_run_migrations('up', migrations, step, true)
       puts migrations_info.empty? ? "There is no new migrations to migrate." : migrations_info
