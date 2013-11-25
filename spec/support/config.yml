@@ -1,4 +1,5 @@
 migration:
+  rake_namespace: 'test'
   migrate:
   rollback:
   custom:
