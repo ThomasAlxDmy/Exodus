@@ -1,3 +1,7 @@
+## v1.1.3
+
+* Small changes around rerunnable migrations
+
 ## v1.1.2
 
 * Exodus now supports custom namespacing to not conflict with AR db:migrate
@@ -24,7 +28,7 @@
 
 ## v1.0.4
 
-* Custom migrations now runs in the given order
+* Custom migrations now run in the given order
 
 ## v1.0.3
 
