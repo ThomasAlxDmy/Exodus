@@ -37,7 +37,7 @@ module Exodus
     end
 
     # Resets a status
-    def reset
+    def reset!
       self.message = nil
       self.current_status = 0
       self.execution_time = 0

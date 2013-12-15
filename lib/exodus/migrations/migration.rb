@@ -103,7 +103,7 @@ module Exodus
       self.status.direction = direction
 
       # reset the status if the job is rerunnable and has already be completed
-      self.status = self.status.reset if self.rerunnable_safe && completed?(direction) 
+      self.status.reset! if self.rerunnable_safe && completed?(direction) 
       self.status.execution_time = time_it { self.send(direction) }
       self.status.last_succesful_completion = Time.now
     end

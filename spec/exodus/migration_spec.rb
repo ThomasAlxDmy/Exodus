@@ -57,6 +57,24 @@ describe Exodus::Migration do
           end
         end
       end
+
+      class RerunnableMigrationTest < Exodus::Migration
+        def initialize(args = {})
+          super(args)
+          self.rerunnable_safe = true
+        end
+
+        def up 
+          step("Creating new APIUser entity", 1) {UserSupport.first_or_create(:name =>'testor')}
+        end
+
+        def down 
+          step("Droping APIUser entity", 0) do 
+            user = UserSupport.first
+            user.destroy if user
+          end
+        end
+      end
     end
 
     subject { Migration_test1.first_or_create({}) }
@@ -86,6 +104,25 @@ describe Exodus::Migration do
         subject.status.direction.should == 'down'
         subject.status.execution_time.should > 0
         subject.status.message.should == 'Droping APIUser entity'
+      end
+
+      it "should run and rerun when the migration is rerunnable safe" do
+        RerunnableMigrationTest.collection.drop
+        UserSupport.collection.drop
+
+        migration = RerunnableMigrationTest.first_or_create({})
+
+        lambda{ migration.run('up')}.should change { UserSupport.count }.by(1)
+        migration.status.arguments.should be_empty
+        migration.status.current_status.should == 1
+        migration.status.direction.should == 'up'
+        migration.status.execution_time.should > 0
+        migration.status.last_succesful_completion.should
+        migration.status.message.should == 'Creating new APIUser entity'
+
+        UserSupport.first.destroy
+        UserSupport.count.should == 0
+        lambda{ migration.run('up')}.should change { UserSupport.count }.by(1)
       end
     end
 
