@@ -1,1 +1,1 @@
-rvm use ruby-1.9.3-p194@exodus
+rvm use ruby-1.9.3-p194@exodus --create
