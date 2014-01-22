@@ -1,3 +1,7 @@
+## v1.1.4
+
+* Added rake task: rake db:reset
+
 ## v1.1.3
 
 * Small changes around rerunnable migrations
