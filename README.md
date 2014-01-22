@@ -122,10 +122,15 @@ Exodus - A migration framework for MongoDb
     rake db:migrate STEP=2
 
 ### db:rollback
-  Rolls back all migrations that haven't run yet. You can set the STEP enviroment variable to rollback only the last x ones.
+  Rolls back all migrations that have already run. You can set the STEP enviroment variable to rollback only the last x ones.
 
     rake db:rollback
     rake db:rollback STEP=2
+
+### db:reset
+  Rolls back all migrations that have already run and then run all migrations.
+
+    rake db:reset
 
 ### db:migrate:show
   Print in the console all migrations that rake db:migrate will run. Does NOT run any migration. You can the STEP enviroment to run only the first x ones.

@@ -24,6 +24,18 @@ namespace Exodus.configuration.rake_namespace + 'db' do
     end
   end
 
+  desc "Reset the database back by rolling back all migrations and then migrating"
+  task :reset => :require_env do 
+    time_it "db:reset" do 
+      migrations_to_revert = Exodus::Migration.load_all(Exodus.migrations_info.rollback)
+      migrations_to_migrate = Exodus::Migration.load_all(Exodus.migrations_info.migrate)
+      Exodus::sort_and_run_migrations('down', migrations_to_revert)
+
+      puts "rolling back is done. Database is now in a virgin state. Migrating in progress..."
+      Exodus::sort_and_run_migrations('up', migrations_to_migrate)
+    end
+  end
+
   desc "Shows informations about the current mongo connection"
   task :mongo_info => :require_env do 
     p MongoMapper.database
