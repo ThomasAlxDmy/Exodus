@@ -11,7 +11,7 @@ describe Exodus::Migration do
 
     it "should have default value for [status_complete, rerunnable_safe]" do
       subject.status_complete.should == 1
-      subject.rerunnable_safe.should be_false
+      (subject.class.rerunnable_safe?).should be_false
     end
   end
 
@@ -59,9 +59,10 @@ describe Exodus::Migration do
       end
 
       class RerunnableMigrationTest < Exodus::Migration
+        self.rerunnable_safe = true
+
         def initialize(args = {})
           super(args)
-          self.rerunnable_safe = true
         end
 
         def up 
@@ -202,7 +203,7 @@ describe Exodus::Migration do
       end
 
       it "should be runable when if the task is safe" do
-        subject.rerunnable_safe = true
+        subject.class.rerunnable_safe = true
 
         subject.is_runnable?('up').should be_true 
         subject.is_runnable?('down').should be_true

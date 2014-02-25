@@ -12,7 +12,6 @@ module Exodus
 
     key :description,                 String
     key :status_complete,             Integer, :default => 1
-    key :rerunnable_safe,             Boolean, :default => false  # Be careful if the job is rerunnable_safe he will re-run on each db:migrate
 
     has_one :status, :class_name => "Exodus::MigrationStatus", :autosave => true
 
@@ -40,8 +39,8 @@ module Exodus
       def load_all(migrations)
         if migrations
           migrations.each do |migration, args|
-            if migration && args
-              formated_migration = format(migration, args)
+            if migration
+              formated_migration = format(migration, args || {})
               migration, args = formated_migration
 
               unless @migrations.include?(formated_migration)
@@ -58,7 +57,7 @@ module Exodus
       # Using a list of migrations formats them and removes duplicates 
       # migrations: list of migrations => [[MyMigration, {:my_args => 'some_args'}]] 
       def load_custom(migrations)
-        migrations = migrations || []
+        migrations ||= []
         migrations.map {|migration_str, args| format(migration_str, args) }.uniq
       end
 
@@ -90,6 +89,18 @@ module Exodus
 
         super_print(status_info)
       end 
+
+      def rerunnable_safe=(safe)
+        migrations = Migration.instance_variable_get("@migrations")
+        deletion = migrations.delete([self])
+        Migration.instance_variable_set("@migrations", migrations) if deletion
+
+        @rerunnable_safe = safe
+      end
+
+      def rerunnable_safe?
+        @rerunnable_safe == true
+      end
     end
 
     # Makes sure status get instanciated on migration's instanciation
@@ -104,25 +115,31 @@ module Exodus
       self.status.direction = direction
 
       # reset the status if the job is rerunnable and has already be completed
-      self.status.reset! if self.rerunnable_safe && completed?(direction) 
+      self.status.reset! if self.class.rerunnable_safe? && completed?(direction) 
       self.status.execution_time = time_it { self.send(direction) }
       self.status.last_succesful_completion = Time.now
     end
 
     # Sets an error to migration status 
     def failure=(exception)
-      self.status.error = MigrationError.new(:error_message => exception.message, :error_class => exception.class, :error_backtrace => exception.backtrace)
+      self.status.error = MigrationError.new(
+        :error_message => exception.message, 
+        :error_class => exception.class, 
+        :error_backtrace => exception.backtrace)
     end
 
     # Checks if a migration can be run
     def is_runnable?(direction)
-      rerunnable_safe || (direction == UP && status.current_status < status_complete) || (direction == DOWN && status.current_status > 0)
+      self.class.rerunnable_safe? || 
+      (direction == UP && status.current_status < status_complete) || 
+      (direction == DOWN && status.current_status > 0)
     end
 
     # Checks if a migration as been completed
     def completed?(direction) 
       return false if self.status.execution_time == 0
-      (direction == UP && self.status.current_status == self.status_complete) || (direction == DOWN && self.status.current_status == 0)
+      (direction == UP && self.status.current_status == self.status_complete) || 
+      (direction == DOWN && self.status.current_status == 0)
     end
 
     def characteristic
