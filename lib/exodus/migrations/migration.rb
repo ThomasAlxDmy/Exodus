@@ -58,6 +58,7 @@ module Exodus
       # Using a list of migrations formats them and removes duplicates 
       # migrations: list of migrations => [[MyMigration, {:my_args => 'some_args'}]] 
       def load_custom(migrations)
+        migrations = migrations || []
         migrations.map {|migration_str, args| format(migration_str, args) }.uniq
       end
 

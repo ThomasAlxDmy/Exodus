@@ -60,6 +60,7 @@ namespace Exodus.configuration.rake_namespace + 'db' do
           Exodus::Migration.load_custom(Exodus.migrations_info.migrate_custom)
         end
 
+        puts "No migrations to run have been found" if migrations.empty?
         Exodus::sort_and_run_migrations('up', migrations, step)
       end
     end
@@ -99,6 +100,7 @@ namespace Exodus.configuration.rake_namespace + 'db' do
           Exodus::Migration.load_custom(Exodus.migrations_info.rollback_custom)
         end
 
+        puts "No migrations to run have been found" if migrations.empty?
         Exodus::sort_and_run_migrations('down', migrations, step)
       end
     end
