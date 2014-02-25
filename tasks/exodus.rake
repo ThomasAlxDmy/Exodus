@@ -7,7 +7,7 @@ task :require_env do
   Exodus.load_migrations
 end
 
-namespace Exodus.configuration.rake_namespace + 'db' do
+namespace Exodus.configuration.rake_namespace.to_s + 'db' do
   desc "Migrate the database"
   task :migrate => :require_env do 
     time_it "db:migrate#{" step #{step}" if step}" do 

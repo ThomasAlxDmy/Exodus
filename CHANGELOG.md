@@ -1,3 +1,11 @@
+## v1.1.6
+
+* Rerunnable migration is now a class property
+
+## v1.1.5
+
+* Added more logging on custom migrations
+
 ## v1.1.4
 
 * Added rake task: rake db:reset
