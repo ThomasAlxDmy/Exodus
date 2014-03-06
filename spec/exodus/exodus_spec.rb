@@ -25,14 +25,14 @@ describe Exodus do
     end
   end
 
-  before do
+  before :all do
     Exodus::Migration.collection.drop
   end
 
   describe "sort_migrations" do 
   	before do
-      class Migration_test4 < Exodus::Migration; end
-      class Migration_test3 < Exodus::Migration; end
+      create_dynamic_class('Migration_test4')
+      create_dynamic_class('Migration_test3')
 
       Migration_test3.migration_number = 3
       Migration_test4.migration_number = 4
@@ -57,9 +57,9 @@ describe Exodus do
 
   describe "order_with_direction" do 
   	before do
-      class Migration_test4 < Exodus::Migration; end
-      class Migration_test3 < Exodus::Migration; end
-      class Migration_test5 < Exodus::Migration; end
+      create_dynamic_class('Migration_test4')
+      create_dynamic_class('Migration_test3')
+      create_dynamic_class('Migration_test5')
 
       Migration_test3.migration_number = 3
       Migration_test4.migration_number = 4
@@ -88,7 +88,7 @@ describe Exodus do
 	  end
   end
 
-  describe "tasks" do 
+  describe "#tasks" do 
   	it "should return the current path of exodus.rake" do
   		rake_file = Pathname.new(File.dirname(__FILE__) + '/../../tasks/exodus.rake')
   		Pathname.new(Exodus.tasks).realpath.to_s.should == rake_file.realpath.to_s
@@ -97,16 +97,8 @@ describe Exodus do
 
   describe "run_one_migration" do
     before do
-      class Migration_test6 < Exodus::Migration
-        def up 
-          'valid'
-        end
-      end
-      class Migration_test7 < Exodus::Migration
-        def up 
-          raise StandardError, "the current migration failed"
-        end
-      end
+      create_dynamic_class('Migration_test6')
+      create_dynamic_class('Migration_test7')
     end
 
     before :each do
@@ -157,16 +149,8 @@ describe Exodus do
 
   describe "find_existing_migration" do
     before do
-      class Migration_test6 < Exodus::Migration
-        def up 
-          'valid'
-        end
-      end
-      class Migration_test8 < Exodus::Migration
-        def up 
-          'valid'
-        end
-      end
+      create_dynamic_class('Migration_test6')
+      create_dynamic_class('Migration_test8')
     end
 
     before :each do
@@ -211,24 +195,12 @@ describe Exodus do
 
   describe "run_migrations and sort_and_run_migrations" do
     before do
-      class Migration_test9 < Exodus::Migration
-        @migration_number = 9
-        def up 
-          UserSupport.create!({:name => "Thomas"})
-        end
-      end
-
-      class Migration_test10 < Exodus::Migration
-        @migration_number = 10
-        def up 
-          UserSupport.create!({:name => "Tester"})
-        end
-      end
+      create_dynamic_class('Migration_test9')
+      create_dynamic_class('Migration_test10')
     end
 
     before :each do 
-      UserSupport.collection.drop
-      Exodus::Migration.collection.drop
+      reset_collections(UserSupport,Exodus::Migration)
     end
 
     describe "running the same migration in a different order with run_migrations" do 

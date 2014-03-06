@@ -2,6 +2,11 @@ require "spec_helper"
 
 describe Exodus::Migration do
 
+  before :all do 
+    create_dynamic_class('Migration_test1')
+  end
+
+
   describe "New Oject" do
     subject { Exodus::Migration.new }
 
@@ -21,23 +26,27 @@ describe Exodus::Migration do
     describe "#inherited" do
       it "should add a new migrations when a new migration class is created" do
         migration_size = subject.class.load_all([]).size.to_i
-        class Migration_test1 < Exodus::Migration; end
-
+        create_dynamic_class('Migration_test2')
+        
         subject.class.load_all([]).size.should == migration_size + 1
       end
     end
 
     describe "#load_all" do
+      before :all do 
+        create_dynamic_class('CompleteNewMigration')
+      end
+
       it "should override migrations" do
         first_migration = subject.class.load_all([]).first.first 
-        subject.class.load_all([[first_migration, {:test_args => ['some', 'test', 'arguments']}]]).should include [first_migration, {:test_args => ['some', 'test', 'arguments']}] 
+        override_migration = [first_migration, {:test_args => ['some', 'test', 'arguments']}]
+        subject.class.load_all([override_migration]).should include override_migration
       end
 
       it "should add a new migrations if the migration is not present" do
         migration_classes = subject.class.load_all([]).map{|migration, args| migration}
-        class CompleteNewMigration < Exodus::Migration; end
-        
         reloaded_migration_classes = subject.class.load_all([[CompleteNewMigration.name]]).map{|migration, args| migration} 
+
         reloaded_migration_classes.should include CompleteNewMigration 
       end
     end
@@ -45,80 +54,36 @@ describe Exodus::Migration do
 
   describe "instance methods" do
     before do
-      class Migration_test1 < Exodus::Migration
-        def up 
-          step("Creating new APIUser entity", 1) {UserSupport.create(:name =>'testor')}
-        end
-
-        def down 
-          step("Droping APIUser entity", 0) do 
-            user = UserSupport.first
-            user.destroy if user
-          end
-        end
-      end
-
-      class RerunnableMigrationTest < Exodus::Migration
-        self.rerunnable_safe = true
-
-        def initialize(args = {})
-          super(args)
-        end
-
-        def up 
-          step("Creating new APIUser entity", 1) {UserSupport.first_or_create(:name =>'testor')}
-        end
-
-        def down 
-          step("Droping APIUser entity", 0) do 
-            user = UserSupport.first
-            user.destroy if user
-          end
-        end
-      end
+      create_dynamic_class('Migration_test1')
+      create_dynamic_class('RerunnableMigrationTest')
     end
 
     subject { Migration_test1.first_or_create({}) }
 
     describe "#run" do
-      it "should create a new APIUser when running it up" do
-        Migration_test1.collection.drop
-        UserSupport.collection.drop
+      before :each do 
+        reset_collections(Migration_test1, UserSupport)
+      end
 
+      it "should create a new APIUser when running it up" do
         lambda{ subject.run('up')}.should change { UserSupport.count }.by(1)
-        subject.status.arguments.should be_empty
-        subject.status.current_status.should == 1
-        subject.status.direction.should == 'up'
-        subject.status.execution_time.should > 0
-        subject.status.last_succesful_completion.should
+        migration_should_be_up(subject)
         subject.status.message.should == 'Creating new APIUser entity'
       end
 
       it "should delete an APIUser when running it down" do
-        Migration_test1.collection.drop
-        UserSupport.collection.drop
         subject.run('up')
 
         lambda{ subject.run('down')}.should change { UserSupport.count }.by(-1)
-        subject.status.arguments.should be_empty
-        subject.status.current_status.should == 0
-        subject.status.direction.should == 'down'
-        subject.status.execution_time.should > 0
+        migration_should_be_down(subject)
         subject.status.message.should == 'Droping APIUser entity'
       end
 
       it "should run and rerun when the migration is rerunnable safe" do
-        RerunnableMigrationTest.collection.drop
-        UserSupport.collection.drop
-
         migration = RerunnableMigrationTest.first_or_create({})
 
         lambda{ migration.run('up')}.should change { UserSupport.count }.by(1)
-        migration.status.arguments.should be_empty
-        migration.status.current_status.should == 1
-        migration.status.direction.should == 'up'
-        migration.status.execution_time.should > 0
-        migration.status.last_succesful_completion.should
+        migration_should_be_up(migration)
         migration.status.message.should == 'Creating new APIUser entity'
 
         UserSupport.first.destroy
@@ -145,10 +110,11 @@ describe Exodus::Migration do
     end
 
     describe "#time_it" do
-      it "should execute a block and set the execution_time" do
-        Migration_test1.collection.drop
-        UserSupport.collection.drop
+      before :all do
+        reset_collections(Migration_test1, UserSupport)
+      end
 
+      it "should execute a block and set the execution_time" do
         lambda do 
           time = subject.send(:time_it) {UserSupport.create(:name => 'testor')}
         end.should change { UserSupport.count }.by(1)
@@ -156,10 +122,11 @@ describe Exodus::Migration do
     end
 
     describe "#completed?" do
-      it "should be false when the job is not completed" do
-        Migration_test1.collection.drop
-        UserSupport.collection.drop
+      before :all do
+        reset_collections(Migration_test1, UserSupport)
+      end
 
+      it "should be false when the job is not completed" do
         subject.completed?('up').should be_false
         subject.completed?('down').should be_false
       end
@@ -180,10 +147,11 @@ describe Exodus::Migration do
     end
 
     describe "#is_runnable?" do
-      it "should only be runable up when it has never run before" do
-        Migration_test1.collection.drop
-        UserSupport.collection.drop
+      before :all do
+        reset_collections(Migration_test1, UserSupport)
+      end
 
+      it "should only be runable up when it has never run before" do
         subject.is_runnable?('up').should be_true
         subject.is_runnable?('down').should be_false
       end
