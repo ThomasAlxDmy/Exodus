@@ -63,5 +63,5 @@ CLASS_DEFINITION
         end
 CLASS_DEFINITION
 
-  CLASS_CONTENT = instance_variables.each_with_object({}) {|v, hash| hash[v] = instance_variable_get(v)}
+  CLASS_CONTENT = instance_variables.each_with_object({}) {|v, hash| hash[v.to_sym] = instance_variable_get(v)}
 end
