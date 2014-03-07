@@ -203,43 +203,28 @@ describe Exodus do
       reset_collections(UserSupport,Exodus::Migration)
     end
 
+    let(:migrations_info) { [[Migration_test9, {}], [Migration_test10, {}]]}
+
     describe "running the same migration in a different order with run_migrations" do 
       it "should successfully run them in different order" do
-        migrations_info = [[Migration_test9, {}], [Migration_test10, {}]]
-        migrations = migrations_info.map{|migration_info| Exodus.instanciate_migration(*migration_info)} 
+        instanciate_and_run_up_migrations(*migrations_info) 
+        get_users_names.should == ["Thomas", "Tester"]
 
-        Exodus.run_migrations('up', migrations)
-        users = UserSupport.all
-
-        users.first.name.should == "Thomas"
-        users.last.name.should == "Tester"
-
-        UserSupport.collection.drop
-        Exodus::Migration.collection.drop
+        reset_collections(UserSupport, Exodus::Migration) 
+        migrations = migrations_info.map{|migration_info| Exodus.instanciate_migration(*migration_info)}
         Exodus.run_migrations('up', migrations.reverse)
-        users = UserSupport.all
-
-        users.first.name.should == "Tester"
-        users.last.name.should == "Thomas"
+        get_users_names.should == ["Tester", "Thomas"]
       end
     end
 
     describe "running the same migration in a different order with sort_and_run_migrations" do 
       it "should successfully run them in the same order" do
-        migrations = [[Migration_test9, {}], [Migration_test10, {}]] 
-        Exodus.sort_and_run_migrations('up', migrations)
-        users = UserSupport.all
+        Exodus.sort_and_run_migrations('up', migrations_info)
+        get_users_names.should == ["Thomas", "Tester"]
 
-        users.first.name.should == "Thomas"
-        users.last.name.should == "Tester"
-
-        UserSupport.collection.drop
-        Exodus::Migration.collection.drop
-        Exodus.sort_and_run_migrations('up', migrations.reverse)
-        users = UserSupport.all
-
-        users.first.name.should == "Thomas"
-        users.last.name.should == "Tester"
+        reset_collections(UserSupport, Exodus::Migration) 
+        Exodus.sort_and_run_migrations('up', migrations_info.reverse)
+        get_users_names.should == ["Thomas", "Tester"]
       end
     end
 

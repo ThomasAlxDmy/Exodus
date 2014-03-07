@@ -52,4 +52,8 @@ module Exodus::Testing
     migrations = migrations_info.map {|klass,arguments| Exodus.instanciate_migration(klass,arguments)} 
     Exodus.run_migrations('up', migrations)
   end
+
+  def get_users_names
+    users = UserSupport.all.map(&:name)
+  end
 end
