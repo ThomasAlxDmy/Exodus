@@ -54,6 +54,6 @@ module Exodus::Testing
   end
 
   def get_users_names
-    users = UserSupport.all.map(&:name)
+    UserSupport.all.map(&:name)
   end
 end
