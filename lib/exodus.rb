@@ -23,18 +23,18 @@ module Exodus
 			Dir[migrations_info.migrations_directory + '/*.rb'].each { |file|  require file}
 		end
 
-		# Returns the path of the rake file 
+		# Returns the path of the rake file
 		def tasks
 			File.dirname(__FILE__) + '/../tasks/exodus.rake'
 		end
 
 		# Sorts and executes a number of migrations equal to step (or all of them if step is nil)
-		def sort_and_run_migrations(direction, migrations_info, step = nil, show_characteristic = false)			
+		def sort_and_run_migrations(direction, migrations_info, step = nil, show_characteristic = false)
 			if migrations_info
 				sorted_migrations_info = order_with_direction(migrations_info, direction)
 				runnable_migrations = find_runable_migrations(direction, sorted_migrations_info, step)
 
-				if show_characteristic 
+				if show_characteristic
 					runnable_migrations.map(&:characteristic)
 				else
 					run_migrations(direction, runnable_migrations)
@@ -46,7 +46,7 @@ module Exodus
 
 		# Instanciates all of the migrations and returns the ones that are runnable
 		def find_runable_migrations(direction, migrations_info, step)
-	  	runnable_migrations = migrations_info.map do |migration_class, args| 
+	  	runnable_migrations = migrations_info.map do |migration_class, args|
 	  		migration = instanciate_migration(migration_class, args)
 	  		migration if migration.is_runnable?(direction)
 	  	end.compact.uniq
@@ -54,11 +54,11 @@ module Exodus
 	  	step ? runnable_migrations.shift(step.to_i) : runnable_migrations
 	  end
 
-	  # Migrations order need to be reverted if the direction is down 
+	  # Migrations order need to be reverted if the direction is down
 	  # (we want the latest executed migration to be the first reverted)
 	  def order_with_direction(migrations_info, direction)
 	  	sorted_migrations = sort_migrations(migrations_info)
-	  	direction == Migration::UP ? sorted_migrations : sorted_migrations.reverse 
+	  	direction == Migration::UP ? sorted_migrations : sorted_migrations.reverse
 	  end
 
 	  # Sorts migrations using the migration number
@@ -72,7 +72,7 @@ module Exodus
 		  	print_tabulation { run_one_migration(migration, direction) }
 		  end
 	  end
-	  
+
 	  # Runs the migration and save the current status into mongo
 	  def run_one_migration(migration, direction)
   		begin
@@ -88,7 +88,7 @@ module Exodus
 	  end
 
 	  # Database lookup to find  a migration given its class and its arguments
-	  # Instanciates it if the migration is not present in the database 
+	  # Instanciates it if the migration is not present in the database
 	  def instanciate_migration(migration_class, args)
 	  	args ||= {}
 	  	find_existing_migration(migration_class, args) || migration_class.new(:status => {:arguments => args})
@@ -99,7 +99,7 @@ module Exodus
 	  def find_existing_migration(migration_class, args)
 	  	existing_migrations = migration_class.collection.find('status.arguments' => args)
 	  	existing_migrations.detect do |migration|
-	  		existing_migration = migration_class.load(migration)
+	  		existing_migration = Migration.load(migration)
 
 				return existing_migration if existing_migration.is_a?(migration_class)
 	  	end
