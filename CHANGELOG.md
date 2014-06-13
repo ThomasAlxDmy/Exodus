@@ -1,3 +1,7 @@
+## v1.1.7
+
+* Added MongoMapper pre 0.13.0 inheritance compatibility
+
 ## v1.1.6
 
 * Rerunnable migration is now a class property
@@ -25,7 +29,7 @@
 
 ## v1.1.0
 
-* Changed the way migration are executed 
+* Changed the way migration are executed
 * Cleaner output
 * Ability to see which migration will be executed before rake db:migrate and db:rollback with rake db:migrate:show and db:rollback:show
 * Fixed a text formatter issue

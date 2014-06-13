@@ -1,10 +1,12 @@
+require 'yaml'
+
 module Exodus
 	class MigrationInfo
 		attr_accessor :info, :migrations_directory
 		attr_reader :config_file, :db, :connection, :rake_namespace
 
 		def initialize(file = nil)
-			config_file = file if file 
+			config_file = file if file
 		end
 
 		def db=(database)
@@ -49,7 +51,7 @@ module Exodus
 			@info
 		end
 
-		private 
+		private
 
 		def verify_yml_syntax
 			Raise StandardError, "No configuration file specified" unless self.config_file
