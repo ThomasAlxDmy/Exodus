@@ -21,5 +21,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'activesupport', ['>= 2', '< 4']
 
   gem.add_development_dependency 'rspec', '~> 2.10'
+  gem.add_development_dependency 'mime-types', RUBY_VERSION >= '1.9' ? '~> 2.3' : '~> 1.25'
   gem.add_development_dependency 'rake'
 end
