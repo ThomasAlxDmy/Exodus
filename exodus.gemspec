@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'mongo_mapper'
   gem.add_dependency 'bson_ext'
+  gem.add_dependency 'activesupport', RUBY_VERSION <= '1.9.3' ? ['>= 2', '< 4'] : '>= 2'
 
   gem.add_development_dependency 'rspec', '~> 2.10'
   gem.add_development_dependency 'rake'
