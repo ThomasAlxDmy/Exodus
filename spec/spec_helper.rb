@@ -1,13 +1,19 @@
+require 'coveralls'
 require File.dirname(__FILE__) + '/../lib/exodus'
 require File.dirname(__FILE__) + '/support/test_class_definition'
 include Exodus::Testing
 
+# Test coverage gem
+Coveralls.wear!
+
+# Rspec configuration
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :should
   end
 end
 
+# Mongo configuration
 Dir["#{File.dirname(__FILE__)}/support/*.rb"].each { |f| require f }
 mongo_uri = 'mongodb://exodus:exodus@dharma.mongohq.com:10048/Exodus-test'
 local_uri = 'mongodb://localhost:27017/Exodus-test'
@@ -24,7 +30,7 @@ Exodus.configure do |config|
 	end
 end
 
-
+# Helpers methods
 module Exodus::Testing
 
   # Need to create dynamic classes in order to fully test the migration framework
