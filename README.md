@@ -1,20 +1,22 @@
 Exodus - A migration framework for MongoDb
 =============
 
+  - [![Build Status](https://img.shields.io/travis/ThomasAlxDmy/Exodus/master.svg)](https://travis-ci.org/ThomasAlxDmy/Exodus.svg?branch=master)
+
 ## A migration Framework for a schemaless database?
 
-  After working with Mongo for long time now I can tell you working with a schemaless database does not mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency; Especially when your code is live in production and used by millions of users. 
+  After working with Mongo for long time now I can tell you working with a schemaless database does not mean you will never need any migrations. Within the same collection Mongo allows to have documents with a complete different structure, however in some case is you might want to keep data consistency; Especially when your code is live in production and used by millions of users.
 
-  There is a plenty of way to modify documents data structure and after a deep reflexion I realized it makes more sens to use migration framework. A migration framework provides a lot of advantages, such as: 
+  There is a plenty of way to modify documents data structure and after a deep reflexion I realized it makes more sens to use migration framework. A migration framework provides a lot of advantages, such as:
 
-  * It allows you to know at any time which migration has been ran on any given system  
+  * It allows you to know at any time which migration has been ran on any given system
   * It's Auto runnable on deploy
   * When switching enviromment (dev, pre-prod, prod) you don't need to worry if the script has been ran or not. The framework takes care of it for you
 
   Exodus has been used in production since March 2013.
 
 ## Installation
-  
+
   Add this line to your application's Gemfile:
 
       gem 'exodus'
@@ -33,7 +35,7 @@ Exodus - A migration framework for MongoDb
 
     require 'exodus'
 
-    Exodus.configure do |config| 
+    Exodus.configure do |config|
       config.db = 'migration_db'
       config.connection = Mongo::MongoClient.new("127.0.0.1", 27017, :pool_size => 5, :pool_timeout => 5)
       config.config_file = File.dirname(__FILE__) + '/config/migrations.yml'
@@ -42,14 +44,14 @@ Exodus - A migration framework for MongoDb
 
   Then you just need to loads the migrations tasks by adding the following line to your rakefile:
 
-    load Exodus.tasks 
+    load Exodus.tasks
 
   ... And you're all set!
 
 
 ## Basic knowledge
 
-* All Migrations have to be ruby classes that inherits from Migration class. 
+* All Migrations have to be ruby classes that inherits from Migration class.
 * Migrations have a direction (UP or DOWN)
 * UP means the migration has been migrated
 * DOWN means the migration has not been run or has been rollbacked
@@ -97,15 +99,15 @@ Exodus - A migration framework for MongoDb
       end
 
       def down
-        step("Creating name index", 2) do 
+        step("Creating name index", 2) do
           puts Account.collection.ensure_index({:name => 1}, {:unique => true, :sparse => true})
         end
 
-        step("Renaming", 1) do 
+        step("Renaming", 1) do
           puts Account.collection.update({'first_name' => {'$exists' => true}}, {'$rename' => {'first_name' => 'name'}},{:multi => true})
         end
 
-        step("Dropping first_name index", 0) do 
+        step("Dropping first_name index", 0) do
           puts Account.collection.drop_index([[:first_name,1]])
         end
 
@@ -178,9 +180,9 @@ Exodus - A migration framework for MongoDb
 
 ## Namespacing
 
-  You might be using other gems in your project that uses `rake db:migrate` or `rake db:rollback`. In order to avoid conflicts you can define rake_namespace, in the Ruby code: 
+  You might be using other gems in your project that uses `rake db:migrate` or `rake db:rollback`. In order to avoid conflicts you can define rake_namespace, in the Ruby code:
 
-    Exodus.configure do |config| 
+    Exodus.configure do |config|
       config.rake_namespace = 'mongo'
     end
 
