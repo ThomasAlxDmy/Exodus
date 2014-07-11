@@ -2,6 +2,7 @@ Exodus - A migration framework for MongoDb
 =============
 
   - [![Build Status](https://img.shields.io/travis/ThomasAlxDmy/Exodus/master.svg)](https://travis-ci.org/ThomasAlxDmy/Exodus.svg?branch=master)
+  - [![Coverage Status](https://img.shields.io/coveralls/ThomasAlxDmy/Exodus.svg)](https://coveralls.io/r/ThomasAlxDmy/Exodus?branch=master)
 
 ## A migration Framework for a schemaless database?
 
