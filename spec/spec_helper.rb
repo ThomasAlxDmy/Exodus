@@ -1,10 +1,10 @@
-require 'coveralls'
+require 'coveralls' if RUBY_VERSION >= '1.9'
 require File.dirname(__FILE__) + '/../lib/exodus'
 require File.dirname(__FILE__) + '/support/test_class_definition'
 include Exodus::Testing
 
 # Test coverage gem
-Coveralls.wear!
+Coveralls.wear! if RUBY_VERSION >= '1.9'
 
 # Rspec configuration
 RSpec.configure do |config|
