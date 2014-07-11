@@ -2,15 +2,21 @@ require File.dirname(__FILE__) + '/../lib/exodus'
 require File.dirname(__FILE__) + '/support/test_class_definition'
 include Exodus::Testing
 
+RSpec.configure do |config|
+  config.expect_with :rspec do |c|
+    c.syntax = :should
+  end
+end
+
 Dir["#{File.dirname(__FILE__)}/support/*.rb"].each { |f| require f }
 mongo_uri = 'mongodb://exodus:exodus@dharma.mongohq.com:10048/Exodus-test'
 local_uri = 'mongodb://localhost:27017/Exodus-test'
 
-Exodus.configure do |config| 
+Exodus.configure do |config|
 	config.db = 'Exodus-test'
 	config.config_file = File.dirname(__FILE__) + '/support/config.yml'
 
-	begin 
+	begin
 		config.connection = Mongo::MongoClient.from_uri(mongo_uri)
 	rescue Mongo::ConnectionFailure => e
 		puts e.message, 'Connecting to local db...'
@@ -48,8 +54,8 @@ module Exodus::Testing
     classes.each {|c| c.collection.drop}
   end
 
-  def instanciate_and_run_up_migrations(*migrations_info) 
-    migrations = migrations_info.map {|klass,arguments| Exodus.instanciate_migration(klass,arguments)} 
+  def instanciate_and_run_up_migrations(*migrations_info)
+    migrations = migrations_info.map {|klass,arguments| Exodus.instanciate_migration(klass,arguments)}
     Exodus.run_migrations('up', migrations)
   end
 
